@@ -1,0 +1,336 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  USER
+  OPERATOR
+  ADMIN
+}
+
+enum ListingStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  CREATED
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts        Account[]
+  sessions        Session[]
+  operatorProfile OperatorProfile?
+  bookings        Booking[]
+  reviews         Review[]
+  favorites       Favorite[]
+  notifications   Notification[]
+  chatMessages    ChatMessage[]
+}
+
+model OperatorProfile {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  businessName     String
+  description      String?
+  logoUrl          String?
+  phone            String?
+  isVerified       Boolean  @default(false)
+  verificationDocs String[]
+  rating           Float    @default(0)
+  totalBookings    Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  listings Listing[]
+
+  @@index([userId])
+}
+
+model Category {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  slug        String  @unique
+  icon        String?
+  description String?
+
+  listings Listing[]
+
+  @@index([slug])
+}
+
+model Destination {
+  id             String   @id @default(cuid())
+  name           String   @unique
+  slug           String   @unique
+  district       String?
+  region         String?
+  description    String?
+  heroImageUrl   String?
+  latitude       Float?
+  longitude      Float?
+  bestSeason     String?
+  difficultyTags String[]
+
+  listings Listing[]
+
+  @@index([slug])
+}
+
+model Listing {
+  id            String          @id @default(cuid())
+  title         String
+  slug          String          @unique
+  operatorId    String
+  operator      OperatorProfile @relation(fields: [operatorId], references: [id], onDelete: Cascade)
+  categoryId    String
+  category      Category        @relation(fields: [categoryId], references: [id])
+  destinationId String
+  destination   Destination     @relation(fields: [destinationId], references: [id])
+
+  shortDescription String
+  fullDescription  String
+  pricePerPerson   Float
+  discountPrice    Float?
+  durationHours    Float?
+  durationDays     Int?
+  groupSizeMin     Int     @default(1)
+  groupSizeMax     Int
+  difficultyLevel  String?
+
+  inclusions    String[]
+  exclusions    String[]
+  thingsToCarry String[]
+  images        String[]
+
+  status    ListingStatus @default(DRAFT)
+  avgRating Float         @default(0)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  itineraryDays     ItineraryDay[]
+  availabilitySlots AvailabilitySlot[]
+  bookings          Booking[]
+  reviews           Review[]
+  favorites         Favorite[]
+
+  @@index([operatorId])
+  @@index([categoryId])
+  @@index([destinationId])
+  @@index([slug])
+  @@index([status])
+}
+
+model ItineraryDay {
+  id          String   @id @default(cuid())
+  listingId   String
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  dayNumber   Int
+  title       String
+  description String
+  activities  String[]
+
+  @@index([listingId])
+}
+
+model AvailabilitySlot {
+  id          String   @id @default(cuid())
+  listingId   String
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  date        DateTime @db.Date
+  startTime   String?
+  capacity    Int
+  bookedCount Int      @default(0)
+  isActive    Boolean  @default(true)
+
+  bookings Booking[]
+
+  @@index([listingId])
+  @@index([date])
+}
+
+model Booking {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listingId String
+  listing   Listing          @relation(fields: [listingId], references: [id], onDelete: Restrict)
+  slotId    String
+  slot      AvailabilitySlot @relation(fields: [slotId], references: [id], onDelete: Restrict)
+
+  numberOfPeople   Int
+  totalAmount      Float
+  status           BookingStatus @default(PENDING)
+  bookingReference String        @unique
+  specialRequests  String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  payment Payment?
+  review  Review?
+
+  @@index([userId])
+  @@index([listingId])
+  @@index([slotId])
+  @@index([bookingReference])
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  bookingId         String        @unique
+  booking           Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  razorpayOrderId   String?       @unique
+  razorpayPaymentId String?       @unique
+  amount            Float
+  currency          String        @default("INR")
+  status            PaymentStatus @default(CREATED)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([bookingId])
+  @@index([razorpayOrderId])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  bookingId String?  @unique
+  booking   Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  rating    Int
+  comment   String?
+  images    String[]
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([listingId])
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, listingId])
+  @@index([userId])
+  @@index([listingId])
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  sessionId String
+  role      String // "USER" | "ASSISTANT"
+  content   String
+  createdAt DateTime @default(now())
+
+  @@index([sessionId])
+  @@index([userId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Coupon {
+  id              String   @id @default(cuid())
+  code            String   @unique
+  discountPercent Float
+  validFrom       DateTime
+  validTo         DateTime
+  maxUses         Int
+  usedCount       Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([code])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([token])
+}

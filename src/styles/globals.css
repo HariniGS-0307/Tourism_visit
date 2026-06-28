@@ -1,0 +1,528 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── CSS Custom Properties ───────────────────────────────────────────────── */
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --emerald: #059669;
+  --emerald-light: #10b981;
+  --emerald-dark: #065f46;
+}
+
+/* ── Base ────────────────────────────────────────────────────────────────── */
+html { scroll-behavior: smooth; }
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbar styling ───────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ── Gradient text ───────────────────────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #10b981, #059669, #065f46);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.gradient-text-gold {
+  background: linear-gradient(135deg, #f59e0b, #d97706, #92400e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Glass morphism ──────────────────────────────────────────────────────── */
+.glass {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.glass-dark {
+  background: rgba(0,0,0,0.3);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* ── Card hover lift ─────────────────────────────────────────────────────── */
+.card-hover {
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.35s ease;
+  will-change: transform;
+}
+.card-hover:hover {
+  transform: translateY(-8px) scale(1.01);
+  box-shadow: 0 24px 48px rgba(0,0,0,0.15);
+}
+
+/* ── 3D tilt card ────────────────────────────────────────────────────────── */
+.card-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.4s cubic-bezier(0.34,1.4,0.64,1), box-shadow 0.4s ease;
+  will-change: transform;
+}
+.card-3d:hover {
+  transform: perspective(800px) rotateX(4deg) rotateY(-4deg) translateY(-6px) scale(1.02);
+  box-shadow: 20px 20px 60px rgba(0,0,0,0.2), -4px -4px 20px rgba(16,185,129,0.1);
+}
+
+/* ── Shimmer skeleton ────────────────────────────────────────────────────── */
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+/* ── ─────────────────────── ANIMATIONS ─────────────────────────────────── */
+
+/* Fade in up */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+/* Fade in */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+/* Scale in */
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+/* Slide from bottom */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+/* Shimmer */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+/* Float */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33%       { transform: translateY(-12px) rotate(1deg); }
+  66%       { transform: translateY(-6px) rotate(-1deg); }
+}
+/* Mountain drift — used for parallax hero elements */
+@keyframes mountainDrift {
+  0%   { transform: translateX(0) translateY(0) scale(1.05); }
+  50%  { transform: translateX(-8px) translateY(-4px) scale(1.07); }
+  100% { transform: translateX(0) translateY(0) scale(1.05); }
+}
+/* Slow zoom for hero backgrounds */
+@keyframes slowZoom {
+  from { transform: scale(1.04); }
+  to   { transform: scale(1.12); }
+}
+/* Cloud drift */
+@keyframes cloudDrift {
+  0%   { transform: translateX(0); opacity: 0.6; }
+  50%  { opacity: 0.9; }
+  100% { transform: translateX(30px); opacity: 0.6; }
+}
+/* Pulse ring (chat button) */
+@keyframes chat-ping {
+  0%        { transform: scale(1); opacity: 0.5; }
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+/* Orbit (hero decorative rings) */
+@keyframes orbit {
+  from { transform: rotate(0deg) translateX(80px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(80px) rotate(-360deg); }
+}
+/* Particle rise */
+@keyframes particleRise {
+  0%   { transform: translateY(0) translateX(0); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 0.5; }
+  100% { transform: translateY(-120px) translateX(20px); opacity: 0; }
+}
+/* Number count-up shimmer */
+@keyframes numberGlow {
+  0%, 100% { text-shadow: 0 0 20px rgba(16,185,129,0); }
+  50%       { text-shadow: 0 0 20px rgba(16,185,129,0.6); }
+}
+/* Slide in from right (chat panel) */
+@keyframes slide-in-from-bottom-5 {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+/* Draw path (SVG mountain lines) */
+@keyframes drawPath {
+  from { stroke-dashoffset: 2000; }
+  to   { stroke-dashoffset: 0; }
+}
+/* Wave */
+@keyframes wave {
+  0%, 100% { transform: scaleY(1); }
+  50%       { transform: scaleY(1.4); }
+}
+/* Gradient shift (hero bg) */
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── Utility classes for animations ─────────────────────────────────────── */
+.animate-fade-in-up   { animation: fadeInUp 0.65s cubic-bezier(0.22,1,0.36,1) forwards; }
+.animate-fade-in      { animation: fadeIn 0.5s ease-out forwards; }
+.animate-scale-in     { animation: scaleIn 0.45s cubic-bezier(0.22,1,0.36,1) forwards; }
+.animate-slide-up     { animation: slideUp 0.55s cubic-bezier(0.22,1,0.36,1) forwards; }
+.animate-float        { animation: float 5s ease-in-out infinite; }
+.animate-slow-zoom    { animation: slowZoom 22s ease-in-out infinite alternate; }
+.animate-mountain     { animation: mountainDrift 18s ease-in-out infinite; }
+.animate-cloud        { animation: cloudDrift 12s ease-in-out infinite alternate; }
+.animate-ping         { animation: chat-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite; }
+.animate-orbit        { animation: orbit 12s linear infinite; }
+.animate-particle     { animation: particleRise 4s ease-in-out infinite; }
+.animate-number-glow  { animation: numberGlow 3s ease-in-out infinite; }
+.animate-in           { animation-fill-mode: both; }
+.slide-in-from-bottom-5 { animation: slide-in-from-bottom-5 0.35s cubic-bezier(0.22,1,0.36,1); }
+.animate-draw-path    { animation: drawPath 3s ease-out forwards; }
+.animate-gradient     {
+  background-size: 300% 300%;
+  animation: gradientShift 6s ease infinite;
+}
+
+/* Animation delays */
+.delay-75  { animation-delay: 75ms; }
+.delay-100 { animation-delay: 100ms; }
+.delay-150 { animation-delay: 150ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-700 { animation-delay: 700ms; }
+.delay-1000 { animation-delay: 1000ms; }
+
+/* ── Hero 3D mountain scene ──────────────────────────────────────────────── */
+.hero-3d-scene {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+.hero-mountain-layer {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+/* Parallax layers (JS-driven via CSS vars) */
+.parallax-slow  { transform: translateY(calc(var(--scroll-y, 0) * 0.15px)); }
+.parallax-med   { transform: translateY(calc(var(--scroll-y, 0) * 0.3px)); }
+.parallax-fast  { transform: translateY(calc(var(--scroll-y, 0) * 0.5px)); }
+
+/* ── SVG mountain silhouette animations ──────────────────────────────────── */
+.mountain-path {
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
+}
+.mountain-path.animate { animation: drawPath 3s ease-out forwards; }
+
+/* ── Particles ───────────────────────────────────────────────────────────── */
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.particle-1  { animation: particleRise 3.5s ease-in-out infinite; animation-delay: 0s; }
+.particle-2  { animation: particleRise 4.2s ease-in-out infinite; animation-delay: 0.8s; }
+.particle-3  { animation: particleRise 3.8s ease-in-out infinite; animation-delay: 1.6s; }
+.particle-4  { animation: particleRise 4.5s ease-in-out infinite; animation-delay: 2.4s; }
+.particle-5  { animation: particleRise 3.2s ease-in-out infinite; animation-delay: 3.0s; }
+
+/* ── Section reveal (intersection observer triggered) ────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.7s cubic-bezier(0.22,1,0.36,1), transform 0.7s cubic-bezier(0.22,1,0.36,1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal.delay-1 { transition-delay: 0.1s; }
+.reveal.delay-2 { transition-delay: 0.2s; }
+.reveal.delay-3 { transition-delay: 0.3s; }
+.reveal.delay-4 { transition-delay: 0.4s; }
+
+/* ── Wave divider ────────────────────────────────────────────────────────── */
+.wave-divider {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  line-height: 0;
+}
+.wave-divider svg { display: block; }
+
+/* ── Noise texture overlay ───────────────────────────────────────────────── */
+.noise::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  opacity: 0.04;
+  mix-blend-mode: overlay;
+}
+
+/* ── Glow effects ────────────────────────────────────────────────────────── */
+.glow-emerald { box-shadow: 0 0 30px rgba(16,185,129,0.4), 0 0 60px rgba(16,185,129,0.1); }
+.glow-emerald-sm { box-shadow: 0 0 15px rgba(16,185,129,0.3); }
+.text-glow { text-shadow: 0 0 30px rgba(16,185,129,0.5); }
+
+/* ── Neon border ─────────────────────────────────────────────────────────── */
+.border-neon {
+  border: 1px solid rgba(16,185,129,0.4);
+  box-shadow: 0 0 10px rgba(16,185,129,0.15), inset 0 0 10px rgba(16,185,129,0.05);
+}
+
+/* ── Stats number glow ───────────────────────────────────────────────────── */
+.stat-number {
+  background: linear-gradient(135deg, #ffffff, #a7f3d0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 12px rgba(52,211,153,0.4));
+}
+
+/* ── Scrolling ticker ────────────────────────────────────────────────────── */
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.animate-ticker { animation: ticker 25s linear infinite; }
+.animate-ticker:hover { animation-play-state: paused; }
+
+/* ── Button shine effect ─────────────────────────────────────────────────── */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+.btn-shine::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
+}
+.btn-shine:hover::after { left: 150%; }
+
+/* ── Focus styles ────────────────────────────────────────────────────────── */
+*:focus-visible {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ENHANCED 3D & IMMERSIVE EFFECTS  (added)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 3D perspective scene ───────────────────────────────────────────────── */
+.scene-3d {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+/* ── Floating card with 3D depth ────────────────────────────────────────── */
+@keyframes floatCard {
+  0%, 100% { transform: translateY(0px) rotateX(0deg) rotateY(0deg); }
+  25%       { transform: translateY(-10px) rotateX(2deg) rotateY(-1deg); }
+  50%       { transform: translateY(-6px) rotateX(-1deg) rotateY(2deg); }
+  75%       { transform: translateY(-12px) rotateX(1deg) rotateY(-2deg); }
+}
+.animate-float-card { animation: floatCard 8s ease-in-out infinite; }
+
+/* ── Snow/mist particles for hero ───────────────────────────────────────── */
+@keyframes mistDrift {
+  0%   { transform: translateX(0) translateY(0); opacity: 0; }
+  10%  { opacity: 0.3; }
+  80%  { opacity: 0.1; }
+  100% { transform: translateX(60px) translateY(-40px); opacity: 0; }
+}
+.animate-mist { animation: mistDrift 12s ease-in-out infinite; }
+
+/* ── Aurora borealis gradient ───────────────────────────────────────────── */
+@keyframes aurora {
+  0%   { background-position: 0% 50%; opacity: 0.4; }
+  50%  { background-position: 100% 50%; opacity: 0.7; }
+  100% { background-position: 0% 50%; opacity: 0.4; }
+}
+.aurora-bg {
+  background: linear-gradient(135deg,
+    rgba(16,185,129,0.15) 0%,
+    rgba(6,182,212,0.10) 25%,
+    rgba(139,92,246,0.08) 50%,
+    rgba(16,185,129,0.12) 75%,
+    rgba(20,184,166,0.15) 100%);
+  background-size: 400% 400%;
+  animation: aurora 12s ease infinite;
+}
+
+/* ── Depth fog layer ────────────────────────────────────────────────────── */
+@keyframes fogRoll {
+  0%   { transform: translateX(-5%) scaleX(1.1); opacity: 0.5; }
+  50%  { transform: translateX(5%) scaleX(1.0); opacity: 0.7; }
+  100% { transform: translateX(-5%) scaleX(1.1); opacity: 0.5; }
+}
+.animate-fog { animation: fogRoll 20s ease-in-out infinite; }
+
+/* ── River/water shimmer ─────────────────────────────────────────────────── */
+@keyframes waterShimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+.water-shimmer {
+  background: linear-gradient(90deg, #0369a1, #0ea5e9, #38bdf8, #0ea5e9, #0369a1);
+  background-size: 300% 100%;
+  animation: waterShimmer 4s ease-in-out infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Hero scroll progress bar ───────────────────────────────────────────── */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #10b981, #34d399, #6ee7b7);
+  z-index: 9999;
+  transition: width 0.1s linear;
+  box-shadow: 0 0 8px rgba(16,185,129,0.6);
+}
+
+/* ── 3D tilt on hover (enhanced) ────────────────────────────────────────── */
+.tilt-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+.tilt-3d:hover {
+  transform: perspective(600px) rotateX(6deg) rotateY(-6deg) translateZ(10px);
+  box-shadow: 0 30px 60px rgba(0,0,0,0.25), 0 0 30px rgba(16,185,129,0.15);
+}
+
+/* ── Ripple effect on click ─────────────────────────────────────────────── */
+.ripple {
+  position: relative;
+  overflow: hidden;
+}
+.ripple::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  transform: scale(0);
+  animation: rippleEffect 0.6s linear;
+}
+@keyframes rippleEffect {
+  to { transform: scale(4); opacity: 0; }
+}
+
+/* ── Neon pulse ─────────────────────────────────────────────────────────── */
+@keyframes neonPulse {
+  0%, 100% { box-shadow: 0 0 5px rgba(16,185,129,0.4), 0 0 10px rgba(16,185,129,0.2); }
+  50%       { box-shadow: 0 0 20px rgba(16,185,129,0.8), 0 0 40px rgba(16,185,129,0.4); }
+}
+.animate-neon-pulse { animation: neonPulse 2.5s ease-in-out infinite; }
+
+/* ── Stagger children animation ─────────────────────────────────────────── */
+.stagger > *:nth-child(1) { animation-delay: 0ms; }
+.stagger > *:nth-child(2) { animation-delay: 100ms; }
+.stagger > *:nth-child(3) { animation-delay: 200ms; }
+.stagger > *:nth-child(4) { animation-delay: 300ms; }
+.stagger > *:nth-child(5) { animation-delay: 400ms; }
+.stagger > *:nth-child(6) { animation-delay: 500ms; }
+
+/* ── Lens flare (decorative) ─────────────────────────────────────────────── */
+@keyframes lensFlare {
+  0%, 90%, 100% { opacity: 0; transform: scale(0.8); }
+  45%, 50%      { opacity: 0.6; transform: scale(1.2); }
+}
+.animate-lens-flare { animation: lensFlare 8s ease-in-out infinite; }
+
+/* ── Page transition overlay ─────────────────────────────────────────────── */
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-enter { animation: pageIn 0.4s cubic-bezier(0.22,1,0.36,1) forwards; }
+
+/* ── Morphing blob ───────────────────────────────────────────────────────── */
+@keyframes morphBlob {
+  0%   { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  50%  { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+  100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+}
+.animate-blob { animation: morphBlob 8s ease-in-out infinite; }
+
+/* ── Hero depth rings ────────────────────────────────────────────────────── */
+@keyframes depthRing {
+  0%   { transform: scale(1); opacity: 0.4; }
+  100% { transform: scale(3); opacity: 0; }
+}
+.animate-depth-ring { animation: depthRing 4s cubic-bezier(0,0.2,0.8,1) infinite; }
+
+/* ── Text reveal (word by word) ──────────────────────────────────────────── */
+@keyframes textReveal {
+  from { clip-path: inset(0 100% 0 0); }
+  to   { clip-path: inset(0 0% 0 0); }
+}
+.animate-text-reveal { animation: textReveal 1s cubic-bezier(0.22,1,0.36,1) forwards; }
+
+/* ── Pulsing ring around chat button ─────────────────────────────────────── */
+@keyframes expandRing {
+  0%   { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+.animate-expand-ring { animation: expandRing 2s ease-out infinite; }
+
+/* ── Dark glass card ─────────────────────────────────────────────────────── */
+.glass-card {
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+/* ── Frosted glass (light) ───────────────────────────────────────────────── */
+.frosted {
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+}
+
+/* ── Smooth reveal from left ─────────────────────────────────────────────── */
+@keyframes slideFromLeft {
+  from { opacity: 0; transform: translateX(-40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.animate-slide-left { animation: slideFromLeft 0.6s cubic-bezier(0.22,1,0.36,1) forwards; }
+
+/* ── Smooth reveal from right ────────────────────────────────────────────── */
+@keyframes slideFromRight {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.animate-slide-right { animation: slideFromRight 0.6s cubic-bezier(0.22,1,0.36,1) forwards; }

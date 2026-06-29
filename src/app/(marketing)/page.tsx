@@ -11,46 +11,69 @@ export const dynamic = "force-dynamic";
 
 const getStats = unstable_cache(
   async () => {
-    const [destinations, listings, categories] = await Promise.all([
-      prisma.destination.count(),
-      prisma.listing.count({ where: { status: "PUBLISHED" } }),
-      prisma.category.count(),
-    ]);
-    return { destinations, listings, categories };
+    try {
+      const [destinations, listings, categories] = await Promise.all([
+        prisma.destination.count(),
+        prisma.listing.count({ where: { status: "PUBLISHED" } }),
+        prisma.category.count(),
+      ]);
+      return { destinations, listings, categories };
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+      return { destinations: 0, listings: 0, categories: 0 };
+    }
   },
   ["landing-stats"],
   { revalidate: 300 } // 5 min
 );
 
 const getFeaturedDestinations = unstable_cache(
-  async () =>
-    prisma.destination.findMany({
-      include: { _count: { select: { listings: { where: { status: "PUBLISHED" } } } } },
-      orderBy: { name: "asc" },
-      take: 6,
-    }),
+  async () => {
+    try {
+      return await prisma.destination.findMany({
+        include: { _count: { select: { listings: { where: { status: "PUBLISHED" } } } } },
+        orderBy: { name: "asc" },
+        take: 6,
+      });
+    } catch (error) {
+      console.error("Error fetching destinations:", error);
+      return [];
+    }
+  },
   ["landing-destinations"],
   { revalidate: 300 }
 );
 
 const getFeaturedListings = unstable_cache(
-  async () =>
-    prisma.listing.findMany({
-      where: { status: "PUBLISHED" },
-      include: { destination: true, category: true },
-      orderBy: { avgRating: "desc" },
-      take: 3,
-    }),
+  async () => {
+    try {
+      return await prisma.listing.findMany({
+        where: { status: "PUBLISHED" },
+        include: { destination: true, category: true },
+        orderBy: { avgRating: "desc" },
+        take: 3,
+      });
+    } catch (error) {
+      console.error("Error fetching listings:", error);
+      return [];
+    }
+  },
   ["landing-listings"],
   { revalidate: 300 }
 );
 
 const getCategories = unstable_cache(
-  async () =>
-    prisma.category.findMany({
-      include: { _count: { select: { listings: { where: { status: "PUBLISHED" } } } } },
-      take: 6,
-    }),
+  async () => {
+    try {
+      return await prisma.category.findMany({
+        include: { _count: { select: { listings: { where: { status: "PUBLISHED" } } } } },
+        take: 6,
+      });
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      return [];
+    }
+  },
   ["landing-categories"],
   { revalidate: 300 }
 );

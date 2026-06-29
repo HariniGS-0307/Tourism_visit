@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import ListingForm from "@/components/dashboard/ListingForm";
 
+export const dynamic = "force-dynamic";
+
 export default async function NewListingPage() {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== "OPERATOR") redirect("/unauthorized");

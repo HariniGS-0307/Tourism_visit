@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 
+export const dynamic = "force-dynamic";
+
 async function verifyOperator(formData: FormData) {
   "use server";
   const session = await getServerSession(authOptions);

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
 
-
+export const dynamic = "force-dynamic";
 
 export default function UnauthorizedPage() {
   return (

@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { UploadCloud } from "lucide-react";
 
-
+export const dynamic = "force-dynamic";
 
 const operatorRegisterSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),

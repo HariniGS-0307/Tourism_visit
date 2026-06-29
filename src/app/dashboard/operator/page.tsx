@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { BarChart3, Package, Calendar, Star } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function OperatorDashboard() {
   const session = await getServerSession(authOptions);
   

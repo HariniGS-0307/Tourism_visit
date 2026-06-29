@@ -3,8 +3,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { getCategoryImage } from "@/lib/images";
 
-
 import { unstable_cache } from "next/cache";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Activities | Maharashtra Adventures",

@@ -7,6 +7,8 @@ import ScrollReveal from "@/components/shared/ScrollReveal";
 import HeroParallax from "@/components/shared/HeroParallax";
 import FloatingMountains from "@/components/shared/FloatingMountains";
 
+export const dynamic = "force-dynamic";
+
 const getStats = unstable_cache(
   async () => {
     const [destinations, listings, categories] = await Promise.all([

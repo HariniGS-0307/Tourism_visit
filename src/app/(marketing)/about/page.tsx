@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Mountain, MapPin, Shield, Users } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "About | MahaAdventures",
   description: "Learn about Maharashtra Adventures — your platform to discover and book adventure experiences across Maharashtra.",

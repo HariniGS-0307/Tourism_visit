@@ -8,6 +8,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Mountain, Mail, Lock, Eye, EyeOff, User } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),

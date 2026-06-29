@@ -3,6 +3,8 @@ import ListingCard from "@/components/listings/ListingCard";
 import FilterSidebarWrapper from "@/components/shared/FilterSidebarWrapper";
 import { CompareCheckbox, CompareFloatingBar } from "@/components/listings/CompareTool";
 
+export const dynamic = "force-dynamic";
+
 export default async function SearchPage({
   searchParams,
 }: {

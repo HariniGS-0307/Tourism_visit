@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Calendar, MapPin } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function OperatorBookingsPage() {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== "OPERATOR") redirect("/unauthorized");

@@ -1,5 +1,7 @@
 import DestinationsGrid from "@/components/listings/DestinationsGrid";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Destinations | MahaAdventures",
   description: "Browse all adventure destinations across Maharashtra.",

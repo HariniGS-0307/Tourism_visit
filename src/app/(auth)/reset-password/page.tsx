@@ -5,6 +5,8 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Mountain, Lock, Eye, EyeOff, ArrowLeft, CheckCircle } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const router = useRouter();

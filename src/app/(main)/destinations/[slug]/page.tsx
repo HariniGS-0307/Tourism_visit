@@ -10,6 +10,8 @@ import { MapPin, Info, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { unstable_cache } from "next/cache";
 
+export const dynamic = "force-dynamic";
+
 const getCachedDestination = unstable_cache(
   (slug: string) =>
     prisma.destination.findUnique({

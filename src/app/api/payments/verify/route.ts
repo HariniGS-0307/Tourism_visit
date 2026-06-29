@@ -6,6 +6,8 @@ import { authOptions } from "@/lib/auth";
 import { z } from "zod";
 import { sendBookingConfirmation } from "@/lib/email";
 
+export const dynamic = "force-dynamic";
+
 const verifyPaymentSchema = z.object({
   orderId: z.string().min(1, "Razorpay order ID is required"),
   paymentId: z.string().min(1, "Razorpay payment ID is required"),

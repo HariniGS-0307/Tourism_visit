@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
 import { sendBookingConfirmation } from "@/lib/email";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: Request) {
   try {
     const rawBody = await request.text();

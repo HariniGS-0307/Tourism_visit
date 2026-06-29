@@ -6,6 +6,8 @@ import { authOptions } from "@/lib/auth";
 import { createPaymentOrderSchema } from "@/lib/validators";
 import { z } from "zod";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);

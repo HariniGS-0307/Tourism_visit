@@ -6,6 +6,8 @@ import { authOptions } from "@/lib/auth";
 import { chatMessageSchema } from "@/lib/validators";
 import { z } from "zod";
 
+export const dynamic = "force-dynamic";
+
 // ── Rate limiting ─────────────────────────────────────────────────────────────
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT = 120;        // 120 messages per window — feels unlimited

@@ -6,6 +6,11 @@ const nextConfig = {
   // ── Powered by header ─────────────────────────────────────────────────────
   poweredByHeader: false,
 
+  // ── transpilePackages forces lucide-react through Next.js babel/SWC
+  // transform, ensuring the same code path on server and client —
+  // eliminates the CJS vs ESM SVG hydration mismatch.
+  transpilePackages: ["lucide-react"],
+
   // ── Image optimisation ────────────────────────────────────────────────────
   images: {
     formats: ["image/avif", "image/webp"],

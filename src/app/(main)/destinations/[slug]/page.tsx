@@ -27,13 +27,6 @@ const getCachedDestination = unstable_cache(
   { revalidate: 120 }
 );
 
-export async function generateStaticParams() {
-  const destinations = await prisma.destination.findMany({
-    select: { slug: true },
-  });
-  return destinations.map((d) => ({ slug: d.slug }));
-}
-
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const dest = await getCachedDestination(params.slug);
   return {

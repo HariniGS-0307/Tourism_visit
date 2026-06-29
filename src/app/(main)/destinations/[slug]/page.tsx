@@ -1,14 +1,39 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import ListingCard from "@/components/listings/ListingCard";
 import MapEmbed from "@/components/shared/MapEmbed";
 import WeatherWidget from "@/components/shared/WeatherWidget";
+import BackButton from "@/components/shared/BackButton";
 import { fetchWeather } from "@/lib/weather";
-import { getDestinationImage } from "@/lib/images";
+import { MapPin, Info, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { unstable_cache } from "next/cache";
+
+const getCachedDestination = unstable_cache(
+  (slug: string) =>
+    prisma.destination.findUnique({
+      where: { slug },
+      include: {
+        listings: {
+          where: { status: "PUBLISHED" },
+          include: { category: true, destination: true },
+        },
+      },
+    }),
+  ["destination-detail"],
+  { revalidate: 120 }
+);
+
+export async function generateStaticParams() {
+  const destinations = await prisma.destination.findMany({
+    select: { slug: true },
+  });
+  return destinations.map((d) => ({ slug: d.slug }));
+}
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const dest = await prisma.destination.findUnique({ where: { slug: params.slug } });
+  const dest = await getCachedDestination(params.slug);
   return {
     title: dest ? `${dest.name} | MahaAdventures` : "Destination Not Found",
     description: dest?.description,
@@ -16,15 +41,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function DestinationPage({ params }: { params: { slug: string } }) {
-  const destination = await prisma.destination.findUnique({
-    where: { slug: params.slug },
-    include: {
-      listings: {
-        where: { status: "PUBLISHED" },
-        include: { category: true, destination: true },
-      },
-    },
-  });
+  const destination = await getCachedDestination(params.slug);
 
   if (!destination) {
     notFound();
@@ -45,19 +62,34 @@ export default async function DestinationPage({ params }: { params: { slug: stri
 
   return (
     <div className="bg-gray-50 min-h-screen pb-12">
-      <div className="relative h-[40vh] min-h-[300px] w-full bg-gray-900">
-        <img
-          src={getDestinationImage(destination.slug, destination.heroImageUrl)}
+      <div className="relative h-[42vh] min-h-[320px] w-full bg-gray-900 overflow-hidden">
+        <Image
+          src={destination.heroImageUrl || "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80"}
           alt={destination.name}
-          className="absolute inset-0 w-full h-full object-cover opacity-60"
+          fill
+          sizes="100vw"
+          className="object-cover opacity-60 animate-slow-zoom"
+          priority
         />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/70" />
+
+        {/* Back navigation */}
+        <div className="absolute top-6 left-4 sm:left-8 z-20">
+          <BackButton
+            href="/destinations"
+            label="All Destinations"
+            className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:text-white px-4 py-2 rounded-full [&>span]:bg-white/20 [&>span]:border-white/30"
+          />
+        </div>
+
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center px-4">
             <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-4 drop-shadow-md">
               {destination.name}
             </h1>
             <div className="flex items-center justify-center gap-2 text-white/90 text-lg font-medium">
-              📍 {destination.district || destination.region}, Maharashtra
+              <MapPin className="w-5 h-5" />
+              {destination.district || destination.region}, Maharashtra
             </div>
           </div>
         </div>
@@ -72,7 +104,8 @@ export default async function DestinationPage({ params }: { params: { slug: stri
             <div className="flex flex-wrap gap-4">
               {destination.bestSeason && (
                 <div className="flex items-center gap-2 bg-emerald-50 text-emerald-800 px-4 py-2 rounded-lg text-sm font-medium">
-                  ℹ️ Best Season: {destination.bestSeason}
+                  <Info className="w-4 h-4" />
+                  Best Season: {destination.bestSeason}
                 </div>
               )}
               {destination.difficultyTags.map((tag) => (
@@ -110,7 +143,7 @@ export default async function DestinationPage({ params }: { params: { slug: stri
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-4 py-2.5 rounded-lg transition-colors"
               >
-                Get Directions ↗
+                Get Directions <ExternalLink className="w-4 h-4" />
               </a>
             )}
           </div>

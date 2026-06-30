@@ -94,7 +94,7 @@ const DESTINATIONS = [
     district: 'Nashik',
     region: 'Western Ghats',
     description: 'Surrounded by the highest peaks in Sahyadri — a trekker and monsoon paradise.',
-    heroImageUrl: 'https://images.unsplash.com/photo-1439068794076-944eafa2a0f0?w=800&q=80',
+    heroImageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
     latitude: 19.695,
     longitude: 73.5592,
     bestSeason: 'Monsoon (Jun–Sep)',

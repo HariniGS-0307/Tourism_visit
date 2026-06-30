@@ -2,6 +2,8 @@
 
 A full-stack platform to discover, compare, and book adventure experiences across destinations in Maharashtra, India.
 
+✅ **Status**: Live on Vercel!
+
 ## 🚀 Tech Stack
 
 - **Frontend**: Next.js 14 App Router, TypeScript, Tailwind CSS, shadcn/ui

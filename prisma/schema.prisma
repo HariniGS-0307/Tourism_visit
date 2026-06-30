@@ -4,94 +4,64 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
-}
-
-enum Role {
-  USER
-  OPERATOR
-  ADMIN
-}
-
-enum ListingStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
-}
-
-enum BookingStatus {
-  PENDING
-  CONFIRMED
-  CANCELLED
-  COMPLETED
-}
-
-enum PaymentStatus {
-  CREATED
-  PAID
-  FAILED
-  REFUNDED
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  role          Role      @default(USER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
+  id              String           @id @default(cuid())
+  name            String?
+  email           String?          @unique
+  emailVerified   DateTime?
+  image           String?
+  password        String?
+  role            Role             @default(USER)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   accounts        Account[]
-  sessions        Session[]
-  operatorProfile OperatorProfile?
   bookings        Booking[]
-  reviews         Review[]
+  chatMessages    ChatMessage[]
   favorites       Favorite[]
   notifications   Notification[]
-  chatMessages    ChatMessage[]
+  operatorProfile OperatorProfile?
+  reviews         Review[]
+  sessions        Session[]
 }
 
 model OperatorProfile {
-  id               String   @id @default(cuid())
-  userId           String   @unique
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id               String    @id @default(cuid())
+  userId           String    @unique
   businessName     String
   description      String?
   logoUrl          String?
   phone            String?
-  isVerified       Boolean  @default(false)
+  isVerified       Boolean   @default(false)
   verificationDocs String[]
-  rating           Float    @default(0)
-  totalBookings    Int      @default(0)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  listings Listing[]
+  rating           Float     @default(0)
+  totalBookings    Int       @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  listings         Listing[]
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
 
 model Category {
-  id          String  @id @default(cuid())
-  name        String  @unique
-  slug        String  @unique
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
   icon        String?
   description String?
-
-  listings Listing[]
+  listings    Listing[]
 
   @@index([slug])
 }
 
 model Destination {
-  id             String   @id @default(cuid())
-  name           String   @unique
-  slug           String   @unique
+  id             String    @id @default(cuid())
+  name           String    @unique
+  slug           String    @unique
   district       String?
   region         String?
   description    String?
@@ -100,48 +70,43 @@ model Destination {
   longitude      Float?
   bestSeason     String?
   difficultyTags String[]
-
-  listings Listing[]
+  listings       Listing[]
 
   @@index([slug])
 }
 
 model Listing {
-  id            String          @id @default(cuid())
-  title         String
-  slug          String          @unique
-  operatorId    String
-  operator      OperatorProfile @relation(fields: [operatorId], references: [id], onDelete: Cascade)
-  categoryId    String
-  category      Category        @relation(fields: [categoryId], references: [id])
-  destinationId String
-  destination   Destination     @relation(fields: [destinationId], references: [id])
-
-  shortDescription String
-  fullDescription  String
-  pricePerPerson   Float
-  discountPrice    Float?
-  durationHours    Float?
-  durationDays     Int?
-  groupSizeMin     Int     @default(1)
-  groupSizeMax     Int
-  difficultyLevel  String?
-
-  inclusions    String[]
-  exclusions    String[]
-  thingsToCarry String[]
-  images        String[]
-
-  status    ListingStatus @default(DRAFT)
-  avgRating Float         @default(0)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-
-  itineraryDays     ItineraryDay[]
+  id                String             @id @default(cuid())
+  title             String
+  slug              String             @unique
+  operatorId        String
+  categoryId        String
+  destinationId     String
+  shortDescription  String
+  fullDescription   String
+  pricePerPerson    Float
+  discountPrice     Float?
+  durationHours     Float?
+  durationDays      Int?
+  groupSizeMin      Int                @default(1)
+  groupSizeMax      Int
+  difficultyLevel   String?
+  inclusions        String[]
+  exclusions        String[]
+  thingsToCarry     String[]
+  images            String[]
+  status            ListingStatus      @default(DRAFT)
+  avgRating         Float              @default(0)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
   availabilitySlots AvailabilitySlot[]
   bookings          Booking[]
-  reviews           Review[]
   favorites         Favorite[]
+  itineraryDays     ItineraryDay[]
+  category          Category           @relation(fields: [categoryId], references: [id])
+  destination       Destination        @relation(fields: [destinationId], references: [id])
+  operator          OperatorProfile    @relation(fields: [operatorId], references: [id], onDelete: Cascade)
+  reviews           Review[]
 
   @@index([operatorId])
   @@index([categoryId])
@@ -153,50 +118,47 @@ model Listing {
 model ItineraryDay {
   id          String   @id @default(cuid())
   listingId   String
-  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
   dayNumber   Int
   title       String
   description String
   activities  String[]
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
 
   @@index([listingId])
 }
 
 model AvailabilitySlot {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   listingId   String
-  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  date        DateTime @db.Date
+  date        DateTime  @db.Date
   startTime   String?
   capacity    Int
-  bookedCount Int      @default(0)
-  isActive    Boolean  @default(true)
-
-  bookings Booking[]
+  bookedCount Int       @default(0)
+  isActive    Boolean   @default(true)
+  listing     Listing   @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  bookings    Booking[]
 
   @@index([listingId])
   @@index([date])
 }
 
 model Booking {
-  id        String           @id @default(cuid())
-  userId    String
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  listingId String
-  listing   Listing          @relation(fields: [listingId], references: [id], onDelete: Restrict)
-  slotId    String
-  slot      AvailabilitySlot @relation(fields: [slotId], references: [id], onDelete: Restrict)
-
+  id               String           @id @default(cuid())
+  userId           String
+  listingId        String
+  slotId           String
   numberOfPeople   Int
   totalAmount      Float
-  status           BookingStatus @default(PENDING)
-  bookingReference String        @unique
+  status           BookingStatus    @default(PENDING)
+  bookingReference String           @unique
   specialRequests  String?
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-
-  payment Payment?
-  review  Review?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  listing          Listing          @relation(fields: [listingId], references: [id])
+  slot             AvailabilitySlot @relation(fields: [slotId], references: [id])
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payment          Payment?
+  review           Review?
 
   @@index([userId])
   @@index([listingId])
@@ -207,7 +169,6 @@ model Booking {
 model Payment {
   id                String        @id @default(cuid())
   bookingId         String        @unique
-  booking           Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   razorpayOrderId   String?       @unique
   razorpayPaymentId String?       @unique
   amount            Float
@@ -215,6 +176,7 @@ model Payment {
   status            PaymentStatus @default(CREATED)
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
+  booking           Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 
   @@index([bookingId])
   @@index([razorpayOrderId])
@@ -223,15 +185,15 @@ model Payment {
 model Review {
   id        String   @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   listingId String
-  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
   bookingId String?  @unique
-  booking   Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
   rating    Int
   comment   String?
   images    String[]
   createdAt DateTime @default(now())
+  booking   Booking? @relation(fields: [bookingId], references: [id])
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([listingId])
@@ -240,10 +202,10 @@ model Review {
 model Favorite {
   id        String   @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   listingId String
-  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, listingId])
   @@index([userId])
@@ -253,11 +215,11 @@ model Favorite {
 model ChatMessage {
   id        String   @id @default(cuid())
   userId    String?
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   sessionId String
-  role      String // "USER" | "ASSISTANT"
+  role      String
   content   String
   createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
 
   @@index([sessionId])
   @@index([userId])
@@ -266,12 +228,12 @@ model ChatMessage {
 model Notification {
   id        String   @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   type      String
   title     String
   message   String
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
@@ -296,15 +258,14 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -334,4 +295,30 @@ model PasswordResetToken {
 
   @@index([email])
   @@index([token])
+}
+
+enum Role {
+  USER
+  OPERATOR
+  ADMIN
+}
+
+enum ListingStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  CREATED
+  PAID
+  FAILED
+  REFUNDED
 }

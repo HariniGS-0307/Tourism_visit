@@ -45,7 +45,7 @@ export default function CheckoutClient({ booking }: { booking: any }) {
       setInfo("Payment request created successfully. Redirecting to Razorpay...");
 
       const options = {
-        key: data.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_1DP5mmOlF5G5ag",
+        key: data.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: data.amount,
         currency: data.currency,
         name: "Maharashtra Adventures",

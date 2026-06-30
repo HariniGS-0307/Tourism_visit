@@ -12,17 +12,24 @@ import { unstable_cache } from "next/cache";
 
 export const dynamic = "force-dynamic";
 
+import { withTimeout } from "@/lib/db-timeout";
+
 const getCachedDestination = unstable_cache(
-  (slug: string) =>
-    prisma.destination.findUnique({
-      where: { slug },
-      include: {
-        listings: {
-          where: { status: "PUBLISHED" },
-          include: { category: true, destination: true },
+  async (slug: string) => {
+    try {
+      return await withTimeout(prisma.destination.findUnique({
+        where: { slug },
+        include: {
+          listings: {
+            where: { status: "PUBLISHED" },
+            include: { category: true, destination: true },
+          },
         },
-      },
-    }),
+      }));
+    } catch {
+      return null;
+    }
+  },
   ["destination-detail"],
   { revalidate: 120 }
 );

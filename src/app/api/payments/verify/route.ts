@@ -24,9 +24,9 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { orderId, paymentId, razorpaySignature } = verifyPaymentSchema.parse(body);
 
-    const secret = process.env.RAZORPAY_KEY_SECRET;
+    const secret = process.env.RAZORPAY_KEY_SECRET?.trim();
     if (!secret) {
-      return NextResponse.json({ error: "Payment gateway not configured" }, { status: 500 });
+      return NextResponse.json({ error: "Payment gateway not configured. Missing RAZORPAY_KEY_SECRET." }, { status: 500 });
     }
 
     const expectedSignature = crypto

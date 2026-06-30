@@ -6,6 +6,7 @@ import { unstable_cache } from "next/cache";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import HeroParallax from "@/components/shared/HeroParallax";
 import FloatingMountains from "@/components/shared/FloatingMountains";
+import { withTimeout } from "@/lib/db-timeout";
 
 export const dynamic = "force-dynamic";
 
@@ -13,9 +14,9 @@ const getStats = unstable_cache(
   async () => {
     try {
       const [destinations, listings, categories] = await Promise.all([
-        prisma.destination.count(),
-        prisma.listing.count({ where: { status: "PUBLISHED" } }),
-        prisma.category.count(),
+        withTimeout(prisma.destination.count()),
+        withTimeout(prisma.listing.count({ where: { status: "PUBLISHED" } })),
+        withTimeout(prisma.category.count()),
       ]);
       return { destinations, listings, categories };
     } catch (error) {
@@ -30,11 +31,11 @@ const getStats = unstable_cache(
 const getFeaturedDestinations = unstable_cache(
   async () => {
     try {
-      return await prisma.destination.findMany({
+      return await withTimeout(prisma.destination.findMany({
         include: { _count: { select: { listings: { where: { status: "PUBLISHED" } } } } },
         orderBy: { name: "asc" },
         take: 6,
-      });
+      }));
     } catch (error) {
       console.error("Error fetching destinations:", error);
       return [];
@@ -47,12 +48,12 @@ const getFeaturedDestinations = unstable_cache(
 const getFeaturedListings = unstable_cache(
   async () => {
     try {
-      return await prisma.listing.findMany({
+      return await withTimeout(prisma.listing.findMany({
         where: { status: "PUBLISHED" },
         include: { destination: true, category: true },
         orderBy: { avgRating: "desc" },
         take: 3,
-      });
+      }));
     } catch (error) {
       console.error("Error fetching listings:", error);
       return [];
@@ -65,10 +66,10 @@ const getFeaturedListings = unstable_cache(
 const getCategories = unstable_cache(
   async () => {
     try {
-      return await prisma.category.findMany({
+      return await withTimeout(prisma.category.findMany({
         include: { _count: { select: { listings: { where: { status: "PUBLISHED" } } } } },
         take: 6,
-      });
+      }));
     } catch (error) {
       console.error("Error fetching categories:", error);
       return [];

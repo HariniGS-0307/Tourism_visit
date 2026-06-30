@@ -12,12 +12,19 @@ export const metadata = {
   description: "Browse adventure activities across Maharashtra — trekking, camping, wildlife safaris, water sports and more.",
 };
 
+import { withTimeout } from "@/lib/db-timeout";
+
 const getCachedCategories = unstable_cache(
-  () =>
-    prisma.category.findMany({
-      include: { _count: { select: { listings: { where: { status: "PUBLISHED" } } } } },
-      orderBy: { name: "asc" },
-    }),
+  async () => {
+    try {
+      return await withTimeout(prisma.category.findMany({
+        include: { _count: { select: { listings: { where: { status: "PUBLISHED" } } } } },
+        orderBy: { name: "asc" },
+      }));
+    } catch (e) {
+      return [];
+    }
+  },
   ["all-categories"],
   { revalidate: 300 }
 );

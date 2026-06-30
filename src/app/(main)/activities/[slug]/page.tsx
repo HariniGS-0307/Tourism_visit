@@ -9,8 +9,16 @@ import Link from "next/link";
 import { unstable_cache } from "next/cache";
 import { getCategoryImage } from "@/lib/images";
 
+import { withTimeout } from "@/lib/db-timeout";
+
 const getCachedCategory = unstable_cache(
-  (slug: string) => prisma.category.findUnique({ where: { slug } }),
+  async (slug: string) => {
+    try {
+      return await withTimeout(prisma.category.findUnique({ where: { slug } }));
+    } catch {
+      return null;
+    }
+  },
   ["category-detail"],
   { revalidate: 300 }
 );
@@ -60,14 +68,25 @@ export default async function CategoryPage({
     where.destination = { slug: destSlug };
   }
 
-  const [listings, allDestinations] = await Promise.all([
-    prisma.listing.findMany({
-      where,
-      include: { destination: true, category: true },
-      orderBy: { avgRating: "desc" },
-    }),
-    prisma.destination.findMany({ orderBy: { name: "asc" }, select: { slug: true, name: true } }),
-  ]);
+  let listingsResult: Awaited<ReturnType<typeof prisma.listing.findMany>> = [];
+  let allDestinationsResult: { slug: string; name: string }[] = [];
+
+  try {
+    const [listings, allDestinations] = await Promise.all([
+      withTimeout(prisma.listing.findMany({
+        where,
+        include: { destination: true, category: true },
+        orderBy: { avgRating: "desc" },
+      })),
+      withTimeout(prisma.destination.findMany({ orderBy: { name: "asc" }, select: { slug: true, name: true } })),
+    ]);
+
+    listingsResult = listings;
+    allDestinationsResult = allDestinations;
+  } catch (e) {
+    listingsResult = [];
+    allDestinationsResult = [];
+  }
 
   const heroImg = getCategoryImage(category.slug, category.icon);
 
@@ -109,21 +128,21 @@ export default async function CategoryPage({
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar */}
           <div className="w-full lg:w-72 flex-shrink-0">
-            <FilterSidebarWrapper destinations={allDestinations} />
+            <FilterSidebarWrapper destinations={allDestinationsResult} />
           </div>
 
           {/* Results Grid */}
           <div className="flex-grow">
             <div className="mb-6 flex justify-between items-center">
               <h2 className="text-lg font-semibold text-gray-900">
-                <span className="font-bold text-emerald-600">{listings.length}</span>{" "}
-                adventure{listings.length !== 1 ? "s" : ""} found
+                <span className="font-bold text-emerald-600">{listingsResult.length}</span>{" "}
+                adventure{listingsResult.length !== 1 ? "s" : ""} found
               </h2>
             </div>
 
-            {listings.length > 0 ? (
+            {listingsResult.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                {listings.map((listing) => (
+                {listingsResult.map((listing) => (
                   <ListingCard key={listing.id} listing={listing} />
                 ))}
               </div>
